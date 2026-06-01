@@ -1,0 +1,1388 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>和平精英海岛之恋 - 嫁给我吧，小汽车</title>
+    <!-- Tailwind CSS for modern responsive layout and utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        islandBlue: '#4A90E2',
+                        weddingWhite: '#FFFFFF',
+                        roseGold: '#E6B89C',
+                        roseGoldDark: '#C8967A',
+                        medicalRed: '#E74C3C',
+                        grassGreen: '#2ECC71',
+                    },
+                    fontFamily: {
+                        sans: ['PingFang SC', 'Lantinghei SC', 'Microsoft YaHei', 'sans-serif'],
+                        romantic: ['Georgia', 'STKaiti', 'KaiTi', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons for high quality icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom animations & fine tuning */
+        @keyframes pulse-gold {
+            0%, 100% { box-shadow: 0 0 15px rgba(230, 184, 156, 0.6); }
+            50% { box-shadow: 0 0 30px rgba(230, 184, 156, 1); }
+        }
+        .pulse-gold { animation: pulse-gold 2s infinite; }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-slow { animation: float-slow 3s infinite ease-in-out; }
+
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spin-slow { animation: spin-slow 15s linear infinite; }
+
+        /* Canvas background for falling petals & hearts */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 40;
+        }
+
+        /* Customize scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E6B89C;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #C8967A;
+        }
+
+        /* Typing cursor */
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            from, to { color: transparent }
+            50% { color: #E6B89C }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 overflow-x-hidden antialiased">
+
+    <!-- PARTICLES BACKGROUND -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- 1. LOADING SCREEN -->
+    <div id="loading-screen" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center transition-opacity duration-1000">
+        <div class="text-center max-w-md px-4">
+            <!-- 像素空投箱 SVG -->
+            <div id="airdrop-box" class="w-48 h-48 mx-auto relative cursor-pointer mb-8 transition-transform duration-500 hover:scale-105">
+                <svg viewBox="0 0 100 100" class="w-full h-full">
+                    <!-- Red bottom container -->
+                    <rect x="25" y="45" width="50" height="40" fill="#E74C3C" rx="2" />
+                    <!-- Blue cloth top -->
+                    <path d="M20 45 L80 45 L75 35 L25 35 Z" fill="#2980B9" />
+                    <rect x="25" y="30" width="50" height="8" fill="#3498DB" rx="2" />
+                    <!-- Straps -->
+                    <rect x="35" y="38" width="6" height="47" fill="#2C3E50" />
+                    <rect x="59" y="38" width="6" height="47" fill="#2C3E50" />
+                    <!-- Glow under/around -->
+                    <circle cx="50" cy="50" r="40" stroke="#F1C40F" stroke-width="2" fill="none" class="animate-ping opacity-20" />
+                </svg>
+                <!-- Gold star glowing inside -->
+                <div id="glow-light" class="absolute inset-0 bg-yellow-400 rounded-full filter blur-xl opacity-0 scale-50 transition-all duration-1000 pointer-events-none"></div>
+            </div>
+
+            <!-- Diamond Ring Reveal Placeholder -->
+            <div id="loading-ring" class="w-48 h-48 mx-auto relative hidden transition-transform duration-1000 scale-50 opacity-0">
+                <svg viewBox="0 0 100 100" class="w-full h-full">
+                    <!-- Diamond -->
+                    <polygon points="50,15 65,30 50,45 35,30" fill="#E0F7FA" stroke="#4A90E2" stroke-width="2"/>
+                    <polygon points="50,15 50,45" fill="none" stroke="#B2EBF2" stroke-width="1.5"/>
+                    <polygon points="35,30 65,30" fill="none" stroke="#B2EBF2" stroke-width="1.5"/>
+                    <!-- Ring band -->
+                    <circle cx="50" cy="55" r="22" fill="none" stroke="#E6B89C" stroke-width="6"/>
+                    <circle cx="50" cy="55" r="22" fill="none" stroke="#FFF" stroke-width="1" stroke-dasharray="2 2"/>
+                    <!-- Sparkles -->
+                    <circle cx="30" cy="20" r="2" fill="#FFF" class="animate-ping"/>
+                    <circle cx="70" cy="20" r="2" fill="#FFF" class="animate-ping"/>
+                </svg>
+            </div>
+
+            <h2 id="loading-text" class="text-roseGold font-mono text-xl tracking-widest mb-4">正在加载我们的一生...</h2>
+            
+            <!-- Health/Energy bar style progress bar -->
+            <div class="w-64 h-5 bg-gray-800 rounded-full p-1 border-2 border-gray-600 mx-auto overflow-hidden relative">
+                <div id="progress-bar" class="h-full bg-gradient-to-r from-yellow-500 to-yellow-300 w-0 transition-all duration-300 rounded-full"></div>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] text-white font-bold tracking-wider">ENERGY BAR</span>
+            </div>
+            
+            <p class="text-xs text-gray-500 mt-6 animate-pulse">第一次进入请在屏幕任意位置轻点一下以允许浪漫音乐播放哟~</p>
+        </div>
+    </div>
+
+
+    <!-- GLOBAL AUDIO CONTROLLER -->
+    <audio id="bg-music" loop preload="auto">
+        <!-- 默认读取本地同目录下的 love-magic.mp3 音乐文件 -->
+        <source src="love-magic.mp3" type="audio/mpeg">
+        <!-- 备用高品质网络音频（网易云外链），如果您没有上传本地MP3，在联网状态下也会尝试播放该链接 -->
+        <source src="https://music.163.com/song/media/outer/url?id=188365.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="music-control" class="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3">
+        <!-- Back to top button -->
+        <a href="#hero" id="btn-back-to-top" class="w-12 h-12 bg-white text-islandBlue rounded-full shadow-lg flex items-center justify-center border border-islandBlue/20 transform translate-y-10 opacity-0 pointer-events-none transition-all duration-500 hover:scale-110 active:scale-95">
+            <i data-lucide="arrow-up" class="w-6 h-6"></i>
+        </a>
+        <!-- Music rotating disk -->
+        <button id="music-toggle" class="w-14 h-14 bg-white/90 backdrop-blur text-roseGold border-2 border-roseGold rounded-full shadow-2xl flex items-center justify-center focus:outline-none transform hover:scale-105 transition-all duration-300 pulse-gold">
+            <div id="disk" class="absolute inset-1 rounded-full border-2 border-dashed border-roseGold/40 spin-slow"></div>
+            <i data-lucide="music" id="music-icon" class="w-6 h-6 relative z-10"></i>
+        </button>
+    </div>
+
+
+    <!-- 2. HERO SECTION -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden bg-cover bg-center py-20" style="background-image: linear-gradient(135deg, rgba(74, 144, 226, 0.85) 0%, rgba(255, 255, 255, 0.9) 100%), url('https://picsum.photos/id/1018/1920/1080?blur=4');">
+        <!-- Interactive parallax map overlay -->
+        <div id="parallax-bg" class="absolute inset-0 pointer-events-none opacity-20 transition-transform duration-300 ease-out">
+            <!-- Simulated grid lines of Erangel Island Map -->
+            <div class="absolute inset-0" style="background-size: 100px 100px; background-image: linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px);"></div>
+            <!-- Heart points on map -->
+            <div class="absolute top-1/4 left-1/3 text-medicalRed animate-ping" style="animation-duration: 3s;"><i data-lucide="heart" class="w-8 h-8 fill-current"></i></div>
+            <div class="absolute bottom-1/3 right-1/4 text-roseGold animate-pulse"><i data-lucide="star" class="w-12 h-12 fill-current"></i></div>
+        </div>
+
+        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur text-sm font-semibold text-islandBlue shadow-sm mb-6 border border-islandBlue/10 animate-bounce">
+                <i data-lucide="award" class="w-4 h-4 text-roseGold"></i> 战友 ➔ 终生伴侣 💍
+            </div>
+            
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-slate-800 tracking-tight leading-tight mb-6">
+                你是我的<span class="text-transparent bg-clip-text bg-gradient-to-r from-islandBlue via-roseGold to-roseGoldDark drop-shadow-sm font-romantic">海岛</span>，<br class="md:hidden">也是我的<span class="text-transparent bg-clip-text bg-gradient-to-r from-roseGoldDark to-islandBlue font-romantic">余生</span>
+            </h1>
+
+            <div class="h-1 w-24 bg-gradient-to-r from-islandBlue via-roseGold to-medicalRed rounded-full mb-8"></div>
+
+            <p class="text-xl md:text-2xl font-medium text-slate-700 tracking-wider mb-2">
+                致 小汽车 <span class="text-xs px-2 py-1 rounded bg-rose-100 text-medicalRed font-bold align-middle">南京医科大学护理专业</span>
+            </p>
+            <p class="text-md md:text-lg text-slate-500 mb-12">
+                来自 北京大学医学技术类大一学生 <span class="font-bold text-slate-700 underline decoration-roseGold decoration-2">张家麒</span> 的求婚
+            </p>
+
+            <a href="#first-meet" class="float-slow bg-white text-roseGold hover:bg-roseGold hover:text-white px-8 py-4 rounded-full shadow-lg hover:shadow-2xl border border-roseGold/30 font-bold transition-all duration-300 flex items-center gap-3">
+                开启求婚乐章 <i data-lucide="chevron-down" class="w-5 h-5"></i>
+            </a>
+        </div>
+    </section>
+
+
+    <!-- 3. SECTION 1: OUR MEETING -->
+    <section id="first-meet" class="py-24 bg-white relative">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-xs tracking-widest font-bold uppercase text-islandBlue">Part 01 · 缘起海岛</span>
+                <h2 class="text-3xl md:text-4xl font-bold mt-2 text-slate-800">故事开始于和平精英的海岛</h2>
+                <div class="w-12 h-1 bg-islandBlue mx-auto mt-4 rounded"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <!-- Left: Island Map Illustration -->
+                <div class="lg:col-span-5 relative group">
+                    <div class="absolute -inset-2 bg-gradient-to-r from-islandBlue to-grassGreen rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                    <div class="relative bg-slate-100 border-4 border-white shadow-2xl rounded-2xl overflow-hidden aspect-square flex flex-col justify-between p-6">
+                        <!-- Simulated Map Grid -->
+                        <div class="absolute inset-0 bg-cover bg-center opacity-70" style="background-image: url('https://picsum.photos/id/343/800/800');"></div>
+                        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900/80"></div>
+                        
+                        <!-- Map Grid Coordinates Overlay -->
+                        <div class="relative z-10 flex justify-between text-xs text-white/50 font-mono">
+                            <span>GRID: ML-04</span>
+                            <span>MILITARY BASE</span>
+                        </div>
+
+                        <!-- Interactive Radar Heart Marker -->
+                        <div class="relative z-10 self-center flex flex-col items-center group-hover:scale-110 transition-transform duration-500">
+                            <div class="relative w-16 h-16 flex items-center justify-center">
+                                <span class="absolute inline-flex h-full w-full rounded-full bg-medicalRed opacity-75 animate-ping"></span>
+                                <div class="relative rounded-full bg-medicalRed text-white p-4 shadow-xl">
+                                    <i data-lucide="map-pin" class="w-8 h-8 fill-current"></i>
+                                </div>
+                            </div>
+                            <span class="text-white text-xs font-bold mt-2 px-2 py-1 bg-black/60 rounded backdrop-blur">初遇地点：海岛P城</span>
+                        </div>
+
+                        <div class="relative z-10 text-white text-sm font-mono flex justify-between items-center">
+                            <span>ERANGEL MAP 2.0</span>
+                            <span class="text-green-400 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> 安全区内</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Text & Items -->
+                <div class="lg:col-span-7 flex flex-col justify-center">
+                    <blockquote class="border-l-4 border-islandBlue pl-6 py-2 mb-8 italic text-slate-600 text-lg leading-relaxed">
+                        “那天我跳了海岛，落地只有一把手枪，以为又要成盒的时候，你从旁边的房子里冲出来，用一把AKM帮我扫倒了两个敌人。你说：<b>‘跟我走，我保护你。’</b> 那时候我还不知道，这句话会成为我一生的承诺。”
+                    </blockquote>
+
+                    <!-- Game Items Relationship -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                        <!-- AKM -->
+                        <div class="bg-slate-50 hover:bg-islandBlue/10 p-4 rounded-xl border border-slate-200 hover:border-islandBlue/30 transition-all duration-300 hover:-translate-y-1">
+                            <div class="w-12 h-12 bg-islandBlue/10 rounded-lg flex items-center justify-center text-islandBlue mb-3">
+                                <i data-lucide="swords" class="w-6 h-6"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm">AKM步枪</h4>
+                            <p class="text-xs text-slate-500 mt-1">你用它保护了我，换我用一生保护你</p>
+                        </div>
+                        <!-- Helmet -->
+                        <div class="bg-slate-50 hover:bg-islandBlue/10 p-4 rounded-xl border border-slate-200 hover:border-islandBlue/30 transition-all duration-300 hover:-translate-y-1">
+                            <div class="w-12 h-12 bg-islandBlue/10 rounded-lg flex items-center justify-center text-islandBlue mb-3">
+                                <i data-lucide="shield" class="w-6 h-6"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm">三级头</h4>
+                            <p class="text-xs text-slate-500 mt-1">你在身边，才是真正的安全</p>
+                        </div>
+                        <!-- First Aid -->
+                        <div class="bg-slate-50 hover:bg-islandBlue/10 p-4 rounded-xl border border-slate-200 hover:border-islandBlue/30 transition-all duration-300 hover:-translate-y-1">
+                            <div class="w-12 h-12 bg-islandBlue/10 rounded-lg flex items-center justify-center text-islandBlue mb-3">
+                                <i data-lucide="heart-pulse" class="w-6 h-6"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm">急救包</h4>
+                            <p class="text-xs text-slate-500 mt-1">现实中，我也想温柔照顾你一辈子</p>
+                        </div>
+                        <!-- Drink -->
+                        <div class="bg-slate-50 hover:bg-islandBlue/10 p-4 rounded-xl border border-slate-200 hover:border-islandBlue/30 transition-all duration-300 hover:-translate-y-1">
+                            <div class="w-12 h-12 bg-islandBlue/10 rounded-lg flex items-center justify-center text-islandBlue mb-3">
+                                <i data-lucide="zap" class="w-6 h-6"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm">能量饮料</h4>
+                            <p class="text-xs text-slate-500 mt-1">与你在一起，人生时刻能量满格</p>
+                        </div>
+                    </div>
+
+                    <!-- Song Line Quote -->
+                    <div class="mt-8 p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-3">
+                        <span class="p-2 bg-rose-200 text-medicalRed rounded-full animate-bounce"><i data-lucide="music-4" class="w-4 h-4"></i></span>
+                        <p class="text-sm text-slate-600 font-romantic">“爱的双重魔力，也苦涩也甜蜜，悄悄地在心底，说一万遍我爱你爱你”</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 4. SECTION 2: WHITE ANGEL -->
+    <section id="white-angel" class="py-24 bg-slate-50 relative overflow-hidden">
+        <!-- Medical styling subtle overlays -->
+        <div class="absolute -top-16 -right-16 w-64 h-64 bg-medicalRed/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-16 -left-16 w-64 h-64 bg-islandBlue/5 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-6xl mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <span class="text-xs tracking-widest font-bold uppercase text-medicalRed">Part 02 · 白衣天使</span>
+                <h2 class="text-3xl md:text-4xl font-bold mt-2 text-slate-800">游戏里的女战神，现实中的治愈天使</h2>
+                <div class="w-12 h-1 bg-medicalRed mx-auto mt-4 rounded"></div>
+            </div>
+
+            <!-- Intro card -->
+            <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-slate-100 max-w-4xl mx-auto">
+                <div class="flex flex-col items-center text-center mb-10">
+                    <div class="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center text-medicalRed mb-6 pulse-gold">
+                        <!-- Nurse Cap representation -->
+                        <svg viewBox="0 0 100 100" class="w-12 h-12 fill-current">
+                            <path d="M15,50 C15,25 85,25 85,50 L85,60 C85,60 50,65 15,60 Z" fill="none" stroke="#E74C3C" stroke-width="4"/>
+                            <path d="M30,35 L70,35 L60,15 L40,15 Z" fill="#E74C3C"/>
+                            <circle cx="50" cy="50" r="10" fill="none" stroke="#E74C3C" stroke-width="4"/>
+                        </svg>
+                    </div>
+                    <p class="text-lg md:text-xl text-slate-600 leading-relaxed font-romantic max-w-2xl">
+                        “你是南京医科大学护理专业的毕业生，是穿着白大褂的白衣天使。你每天照顾着病人，用温柔和专业治愈着他们。我知道护士的工作很辛苦，要熬夜、要面对各种压力，但你总是那么乐观，那么坚强。”
+                    </p>
+                </div>
+
+                <!-- Medical cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Syringe -->
+                    <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <div class="w-10 h-10 bg-rose-100 text-medicalRed rounded-full flex items-center justify-center mb-4"><i data-lucide="syringe" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-slate-800 mb-2">温柔针筒</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">你能给病人打针，也能一针扎进我的心里，再也拔不出来。</p>
+                    </div>
+                    <!-- Thermometer -->
+                    <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <div class="w-10 h-10 bg-rose-100 text-medicalRed rounded-full flex items-center justify-center mb-4"><i data-lucide="thermometer" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-slate-800 mb-2">37.2℃ 体温</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">见到你的那一刻，我的体温就升到了37.2℃，从此再也没有降下来。</p>
+                    </div>
+                    <!-- Lab Coat -->
+                    <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <div class="w-10 h-10 bg-rose-100 text-medicalRed rounded-full flex items-center justify-center mb-4"><i data-lucide="heart" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-slate-800 mb-2">白衣风骨</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">你穿白大褂的样子，是我见过最美的风景，我想每天都能看到。</p>
+                    </div>
+                    <!-- Pill -->
+                    <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <div class="w-10 h-10 bg-rose-100 text-medicalRed rounded-full flex items-center justify-center mb-4"><i data-lucide="pill" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-slate-800 mb-2">专属特效药</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">你是我的特效药，能治愈我所有的不开心，也是我唯一的解药。</p>
+                    </div>
+                </div>
+
+                <!-- Sisterly Love block -->
+                <div class="mt-10 pt-8 border-t border-slate-100 text-center">
+                    <p class="text-slate-600 font-medium">
+                        “你比我大，比我成熟，比我懂得更多。但没关系，我会努力长大，努力成为能为你遮风挡雨的丈夫。”
+                    </p>
+                    <p class="text-xs text-slate-400 mt-2">我会学着照顾你，学着理解你的辛苦，学着做你最坚实的依靠。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 5. SECTION 3: YOUR EXCLUSIVE MEDIC -->
+    <section id="exclusive-medic" class="py-24 bg-white relative">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-xs tracking-widest font-bold uppercase text-islandBlue">Part 03 · 专属医疗兵</span>
+                <h2 class="text-3xl md:text-4xl font-bold mt-2 text-slate-800">我是张家麒，也是你的专属医疗兵</h2>
+                <div class="w-12 h-1 bg-islandBlue mx-auto mt-4 rounded"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <!-- Left: Info -->
+                <div class="lg:col-span-7">
+                    <p class="text-lg text-slate-600 leading-relaxed font-romantic mb-6">
+                        “我是一个有点笨笨的大一新生，在<b>北京大学学习医学技术</b>，未来也会成为一名优秀的医务工作者。我打游戏很菜，总是需要你保护；我有时候会很幼稚，会惹你生气。但我对你的爱，是认真的，是纯粹的，是想要和你共度一生的。”
+                    </p>
+                    
+                    <div class="p-4 bg-slate-50 border-l-4 border-roseGold rounded-r-xl mb-8">
+                        <p class="text-sm text-slate-600 font-romantic italic">
+                            “借我勇气，满满地藏在心，一步步走向你” —— 带着对医学生和未来守护者的期许。
+                        </p>
+                    </div>
+
+                    <!-- Four Personal Icons -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- Books -->
+                        <div class="p-4 rounded-xl border border-slate-100 text-center bg-slate-50 hover:bg-slate-100 transition-all">
+                            <div class="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-2"><i data-lucide="book-open" class="w-5 h-5"></i></div>
+                            <h5 class="text-xs font-bold text-slate-800">好学精进</h5>
+                            <p class="text-[10px] text-slate-400 mt-1">好好学习，一起救死扶伤，撑起温暖的家</p>
+                        </div>
+                        <!-- Controller -->
+                        <div class="p-4 rounded-xl border border-slate-100 text-center bg-slate-50 hover:bg-slate-100 transition-all">
+                            <div class="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-2"><i data-lucide="gamepad-2" class="w-5 h-5"></i></div>
+                            <h5 class="text-xs font-bold text-slate-800">磨砺技术</h5>
+                            <p class="text-[10px] text-slate-400 mt-1">努力练习，以后换我带你吃鸡，踏遍海岛</p>
+                        </div>
+                        <!-- Heart -->
+                        <div class="p-4 rounded-xl border border-slate-100 text-center bg-slate-50 hover:bg-slate-100 transition-all">
+                            <div class="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-2"><i data-lucide="heart" class="w-5 h-5"></i></div>
+                            <h5 class="text-xs font-bold text-slate-800">满腔热忱</h5>
+                            <p class="text-[10px] text-slate-400 mt-1">把我所有的温柔都交给你，毫无保留</p>
+                        </div>
+                        <!-- Ring -->
+                        <div class="p-4 rounded-xl border border-slate-100 text-center bg-slate-50 hover:bg-slate-100 transition-all">
+                            <div class="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-2"><i data-lucide="gem" class="w-5 h-5"></i></div>
+                            <h5 class="text-xs font-bold text-slate-800">终身之约</h5>
+                            <p class="text-[10px] text-slate-400 mt-1">给你一个温暖的港湾，一个两个人的家</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Character Image -->
+                <div class="lg:col-span-5 relative">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-roseGold to-islandBlue rounded-3xl rotate-3 scale-95 opacity-20"></div>
+                    <div class="relative bg-white p-4 rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                        <!-- Placeholder for Portrait -->
+                        <img src="https://picsum.photos/id/64/600/800" alt="张家麒专属医疗兵肖像" class="w-full h-80 object-cover rounded-2xl" onerror="this.onerror=null; this.src='https://picsum.photos/600/800';">
+                        <div class="mt-4 text-center">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">BEI JING UNIVERSITY</p>
+                            <p class="text-sm font-semibold text-slate-600 mt-1">北大一隅 · 期待未来与你白头偕老</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 6. SECTION 4: THEME SONG -->
+    <section id="theme-song" class="py-24 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-xs tracking-widest font-bold uppercase text-roseGold">Part 04 · 我们的旋律</span>
+                <h2 class="text-3xl md:text-4xl font-bold mt-2 text-slate-800">主题曲：《爱的双重魔力》</h2>
+                <div class="w-12 h-1 bg-roseGold mx-auto mt-4 rounded"></div>
+                <p class="text-slate-500 text-sm mt-4">“这首歌我听了一遍又一遍，每一句歌词都像是在述说我对你的感觉”</p>
+            </div>
+
+            <!-- LYRICS TIMELINE WITH VISUAL ILLUSTRATIONS -->
+            <div class="space-y-12 relative before:absolute before:inset-0 before:left-1/2 before:-translate-x-1/2 before:w-0.5 before:bg-roseGold/20 before:pointer-events-none">
+                
+                <!-- Line 1 -->
+                <div class="lyric-card flex flex-col md:flex-row items-center gap-6 relative transition-all duration-700 opacity-60 hover:opacity-100">
+                    <div class="md:w-1/2 text-center md:text-right">
+                        <p class="text-xl font-bold text-slate-800">“你是我的，最大秘密”</p>
+                        <p class="text-xs text-slate-400 mt-1">两个游戏角色并肩站在海岛山顶看日落</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-white border-2 border-roseGold flex items-center justify-center relative z-10 shrink-0 shadow-md">
+                        <i data-lucide="mountain" class="w-6 h-6 text-roseGold"></i>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center md:justify-start">
+                        <div class="w-32 h-20 bg-rose-50 border border-rose-100 rounded-lg flex items-center justify-center text-roseGold overflow-hidden">
+                            <span class="text-xs">🌅 海岛山顶日落</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line 2 -->
+                <div class="lyric-card flex flex-col md:flex-row-reverse items-center gap-6 relative transition-all duration-700 opacity-60 hover:opacity-100">
+                    <div class="md:w-1/2 text-center md:text-left">
+                        <p class="text-xl font-bold text-slate-800">“小心翼翼，写在日记”</p>
+                        <p class="text-xs text-slate-400 mt-1">一本打开的日记本，上面写满了你的名字</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-white border-2 border-roseGold flex items-center justify-center relative z-10 shrink-0 shadow-md">
+                        <i data-lucide="book-open" class="w-6 h-6 text-roseGold"></i>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center md:justify-end">
+                        <div class="w-32 h-20 bg-rose-50 border border-rose-100 rounded-lg flex items-center justify-center text-roseGold">
+                            <span class="text-xs">📒 密密麻麻日记</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line 3 -->
+                <div class="lyric-card flex flex-col md:flex-row items-center gap-6 relative transition-all duration-700 opacity-60 hover:opacity-100">
+                    <div class="md:w-1/2 text-center md:text-right">
+                        <p class="text-xl font-bold text-slate-800">“不敢告诉你，怕你生气”</p>
+                        <p class="text-xs text-slate-400 mt-1">一个有些局促害羞、悄悄关注你的小表情</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-white border-2 border-roseGold flex items-center justify-center relative z-10 shrink-0 shadow-md">
+                        <i data-lucide="smile" class="w-6 h-6 text-roseGold"></i>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center md:justify-start">
+                        <div class="w-32 h-20 bg-rose-50 border border-rose-100 rounded-lg flex items-center justify-center text-roseGold">
+                            <span class="text-xs">😳 局促与窃喜</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line 4 -->
+                <div class="lyric-card flex flex-col md:flex-row-reverse items-center gap-6 relative transition-all duration-700 opacity-60 hover:opacity-100">
+                    <div class="md:w-1/2 text-center md:text-left">
+                        <p class="text-xl font-bold text-slate-800">“只好藏在心底”</p>
+                        <p class="text-xs text-slate-400 mt-1">一颗悄悄挂上金色铜锁的赤忱爱心</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-white border-2 border-roseGold flex items-center justify-center relative z-10 shrink-0 shadow-md">
+                        <i data-lucide="lock" class="w-6 h-6 text-roseGold"></i>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center md:justify-end">
+                        <div class="w-32 h-20 bg-rose-50 border border-rose-100 rounded-lg flex items-center justify-center text-roseGold">
+                            <span class="text-xs">🔒 纯真暗恋心意</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line 5 -->
+                <div class="lyric-card flex flex-col md:flex-row items-center gap-6 relative transition-all duration-700 opacity-60 hover:opacity-100">
+                    <div class="md:w-1/2 text-center md:text-right">
+                        <p class="text-xl font-bold text-slate-800">“爱的双重魔力，也苦涩也甜蜜”</p>
+                        <p class="text-xs text-slate-400 mt-1">左边是温热的醇厚黑咖啡，右边是精致甜点</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-white border-2 border-roseGold flex items-center justify-center relative z-10 shrink-0 shadow-md">
+                        <i data-lucide="coffee" class="w-6 h-6 text-roseGold"></i>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center md:justify-start">
+                        <div class="w-32 h-20 bg-rose-50 border border-rose-100 rounded-lg flex items-center justify-center text-roseGold">
+                            <span class="text-xs">☕️ 咖啡与甜品</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line 6 -->
+                <div class="lyric-card flex flex-col md:flex-row-reverse items-center gap-6 relative transition-all duration-700 opacity-60 hover:opacity-100">
+                    <div class="md:w-1/2 text-center md:text-left">
+                        <p class="text-xl font-bold text-slate-800">“悄悄地在心底，说一万遍我爱你”</p>
+                        <p class="text-xs text-slate-400 mt-1">无数颗红色与粉色爱心如梦幻般向天空飘扬</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-white border-2 border-roseGold flex items-center justify-center relative z-10 shrink-0 shadow-md">
+                        <i data-lucide="heart" class="w-6 h-6 text-roseGold fill-current"></i>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center md:justify-end">
+                        <div class="w-32 h-20 bg-rose-50 border border-rose-100 rounded-lg flex items-center justify-center text-roseGold">
+                            <span class="text-xs">💖 万遍悄悄话</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line 7 -->
+                <div class="lyric-card flex flex-col md:flex-row items-center gap-6 relative transition-all duration-700 opacity-60 hover:opacity-100">
+                    <div class="md:w-1/2 text-center md:text-right">
+                        <p class="text-xl font-bold text-slate-800">“借我勇气，满满藏在心，一步步走向你”</p>
+                        <p class="text-xs text-slate-400 mt-1">海岛风中，男孩手执捧花单膝跪下的求婚背影</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-white border-2 border-roseGold flex items-center justify-center relative z-10 shrink-0 shadow-md">
+                        <i data-lucide="footprints" class="w-6 h-6 text-roseGold"></i>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center md:justify-start">
+                        <div class="w-32 h-20 bg-rose-50 border border-rose-100 rounded-lg flex items-center justify-center text-roseGold">
+                            <span class="text-xs">💍 单膝下跪玫瑰</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line 8 -->
+                <div class="lyric-card flex flex-col md:flex-row-reverse items-center gap-6 relative transition-all duration-700 opacity-60 hover:opacity-100">
+                    <div class="md:w-1/2 text-center md:text-left">
+                        <p class="text-xl font-bold text-slate-800">“给我爱的魔力，不退缩不犹豫”</p>
+                        <p class="text-xs text-slate-400 mt-1">目光相接处，那道温柔如水的坚定眼神</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-white border-2 border-roseGold flex items-center justify-center relative z-10 shrink-0 shadow-md">
+                        <i data-lucide="eye" class="w-6 h-6 text-roseGold"></i>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center md:justify-end">
+                        <div class="w-32 h-20 bg-rose-50 border border-rose-100 rounded-lg flex items-center justify-center text-roseGold">
+                            <span class="text-xs">✨ 坚定目光</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line 9 -->
+                <div class="lyric-card flex flex-col md:flex-row items-center gap-6 relative transition-all duration-700 opacity-60 hover:opacity-100">
+                    <div class="md:w-1/2 text-center md:text-right">
+                        <p class="text-xl font-bold text-slate-800">“甜蜜化在嘴里，是告诉你我爱你”</p>
+                        <p class="text-xs text-slate-400 mt-1">一颗缓缓剥开、散发草莓果香的晶莹糖果</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-white border-2 border-roseGold flex items-center justify-center relative z-10 shrink-0 shadow-md">
+                        <i data-lucide="candy" class="w-6 h-6 text-roseGold"></i>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center md:justify-start">
+                        <div class="w-32 h-20 bg-rose-50 border border-rose-100 rounded-lg flex items-center justify-center text-roseGold">
+                            <span class="text-xs">🍬 剥开的甜心糖</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line 10 -->
+                <div class="lyric-card flex flex-col md:flex-row-reverse items-center gap-6 relative transition-all duration-700 opacity-60 hover:opacity-100">
+                    <div class="md:w-1/2 text-center md:text-left">
+                        <p class="text-xl font-bold text-slate-800">“爱上改变的勇气，都是因为你”</p>
+                        <p class="text-xs text-slate-400 mt-1">两只戴着求婚对戒、紧紧十指相扣的手</p>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-white border-2 border-roseGold flex items-center justify-center relative z-10 shrink-0 shadow-md">
+                        <i data-lucide="handshake" class="w-6 h-6 text-roseGold"></i>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center md:justify-end">
+                        <div class="w-32 h-20 bg-rose-50 border border-rose-100 rounded-lg flex items-center justify-center text-roseGold animate-pulse">
+                            <span class="text-xs">👩‍❤️‍👨 十指紧扣</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 7. SECTION 5: OUR FUTURE (100 THINGS) -->
+    <section id="our-future" class="py-24 bg-white relative">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-xs tracking-widest font-bold uppercase text-islandBlue">Part 05 · 奔赴未来</span>
+                <h2 class="text-3xl md:text-4xl font-bold mt-2 text-slate-800">我想和你一起做的100件事</h2>
+                <div class="w-12 h-1 bg-islandBlue mx-auto mt-4 rounded"></div>
+                <p class="text-slate-500 text-sm mt-4">“这100件事，我想和你一件一件完成，从今天开始。”</p>
+            </div>
+
+            <!-- Scrollable container / masonry-like list -->
+            <div class="max-h-[500px] overflow-y-auto border border-slate-100 rounded-3xl p-6 md:p-8 bg-slate-50 shadow-inner space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="todo-container">
+                    <!-- 1. Done -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-green-200 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-700 font-medium">1. 一起在和平精英海岛地图吃鸡 🍗</span>
+                        <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">✓</span>
+                    </div>
+                    <!-- 2. Done -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-green-200 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-700 font-medium">2. 一起熬夜通宵打游戏 🎮</span>
+                        <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">✓</span>
+                    </div>
+                    <!-- 3. Done -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-green-200 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-700 font-medium">3. 一起听BY2最暖甜的歌 🎵</span>
+                        <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">✓</span>
+                    </div>
+                    <!-- 4. Done -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-green-200 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-700 font-medium">4. 一起深夜交流医学健康小知识 🩺</span>
+                        <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">✓</span>
+                    </div>
+                    <!-- 5. Done -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-green-200 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-700 font-medium">5. 一起吐槽生活中那些繁琐的烦心事 🗣️</span>
+                        <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">✓</span>
+                    </div>
+                    <!-- 6 -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-500">6. 一起去南京，去看看你的南医大母校 🏫</span>
+                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center text-xs">○</span>
+                    </div>
+                    <!-- 7 -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-500">7. 一起回北京，在我的北大校园骑行 🎓</span>
+                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center text-xs">○</span>
+                    </div>
+                    <!-- 8 Highlighted Wedding -->
+                    <div class="p-4 bg-white rounded-xl shadow-md border-2 border-roseGold flex items-center justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <span class="text-slate-800 font-semibold flex items-center gap-1"><i data-lucide="camera" class="w-4 h-4 text-roseGold"></i> 8. 一起去拍属于我们的绝美婚纱照 📷</span>
+                        <span class="w-6 h-6 rounded-full bg-rose-50 text-roseGold flex items-center justify-center text-xs">💍</span>
+                    </div>
+                    <!-- 9 Highlighted Wedding -->
+                    <div class="p-4 bg-white rounded-xl shadow-md border-2 border-roseGold flex items-center justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <span class="text-slate-800 font-semibold flex items-center gap-1"><i data-lucide="gem" class="w-4 h-4 text-roseGold"></i> 9. 一起去精心挑选我们终生的钻戒 💎</span>
+                        <span class="w-6 h-6 rounded-full bg-rose-50 text-roseGold flex items-center justify-center text-xs">💍</span>
+                    </div>
+                    <!-- 10 Highlighted Wedding -->
+                    <div class="p-4 bg-white rounded-xl shadow-md border-2 border-roseGold flex items-center justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <span class="text-slate-800 font-semibold flex items-center gap-1"><i data-lucide="home" class="w-4 h-4 text-roseGold"></i> 10. 一起悉心搭配和装修我们温暖的新家 🏡</span>
+                        <span class="w-6 h-6 rounded-full bg-rose-50 text-roseGold flex items-center justify-center text-xs">💍</span>
+                    </div>
+                    <!-- 11 Highlighted Wedding -->
+                    <div class="p-4 bg-white rounded-xl shadow-md border-2 border-roseGold flex items-center justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <span class="text-slate-800 font-semibold flex items-center gap-1"><i data-lucide="sparkles" class="w-4 h-4 text-roseGold"></i> 11. 一起举办那场专属于我们的世纪婚礼 💒</span>
+                        <span class="w-6 h-6 rounded-full bg-rose-50 text-roseGold flex items-center justify-center text-xs">💍</span>
+                    </div>
+                    <!-- 12 Highlighted Honeymoon -->
+                    <div class="p-4 bg-white rounded-xl shadow-md border-2 border-roseGold flex items-center justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                        <span class="text-slate-800 font-semibold flex items-center gap-1"><i data-lucide="plane" class="w-4 h-4 text-roseGold"></i> 12. 一起开启盛大漫长的环球蜜月之旅 ✈️</span>
+                        <span class="w-6 h-6 rounded-full bg-rose-50 text-roseGold flex items-center justify-center text-xs">💍</span>
+                    </div>
+                    <!-- 13 -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-500">13. 一起领养一只爱撒娇的小萌猫 🐱</span>
+                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center text-xs">○</span>
+                    </div>
+                    <!-- 14 -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-500">14. 一起靠在沙发上看完100部高评分电影 🎬</span>
+                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center text-xs">○</span>
+                    </div>
+                    <!-- 15 -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-500">15. 一起去迪士尼乐园戴着发箍坐过山车 🎡</span>
+                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center text-xs">○</span>
+                    </div>
+                    <!-- 16 -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-500">16. 一起买很多很多的拍立得记录生活点滴 📸</span>
+                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center text-xs">○</span>
+                    </div>
+                    <!-- 17 -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-500">17. 一起吃顿热腾腾的自制冬日小火锅 🍲</span>
+                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center text-xs">○</span>
+                    </div>
+                    <!-- 18 -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <span class="text-slate-500">18. 每一年的纪念日都一定要亲手做好吃的蛋糕 🎂</span>
+                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center text-xs">○</span>
+                    </div>
+                    <!-- Last things -->
+                    <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1 md:col-span-2">
+                        <span class="text-slate-500 font-semibold">100. 一起慢慢变老，直到满头白发的时候，还能坐在摇椅上组队打和平精英 👵👴</span>
+                        <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center text-xs">○</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 8. SECTION 6: GLOBAL HONEYMOON PLAN -->
+    <section id="honeymoon-plan" class="py-24 bg-slate-50 relative overflow-hidden">
+        <!-- Tiny background star particles -->
+        <div class="absolute inset-0 bg-[radial-gradient(#E6B89C_1px,transparent_1px)] [background-size:16px_16px] opacity-20"></div>
+
+        <div class="max-w-6xl mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <span class="text-xs tracking-widest font-bold uppercase text-roseGold">Part 06 · 环球蜜月计划</span>
+                <h2 class="text-3xl md:text-4xl font-bold mt-2 text-slate-800">随变奇迹，和你一起环游世界</h2>
+                <div class="w-12 h-1 bg-roseGold mx-auto mt-4 rounded"></div>
+                <p class="text-slate-500 text-sm mt-4">“随变奇迹，爱上改变的勇气，都是因为你。”</p>
+            </div>
+
+            <!-- Intro text -->
+            <div class="max-w-3xl mx-auto text-center mb-16">
+                <p class="text-slate-600 leading-relaxed font-romantic text-lg">
+                    “我想带你逃离医院的白大褂和消毒水味，逃离生活的琐碎和压力。我想牵着你的手，去看遍世界上所有的美景，去体验不同的风土人情。这是我为我们准备的环球蜜月计划，每一个地方，都因为有你而变得意义非凡。”
+                </p>
+            </div>
+
+            <!-- Interactive Map Wrapper -->
+            <div class="bg-white rounded-3xl p-6 md:p-10 shadow-xl border border-slate-100 mb-12">
+                <h3 class="text-center text-lg font-bold text-slate-700 mb-6 flex items-center justify-center gap-2">
+                    <i data-lucide="map" class="w-5 h-5 text-islandBlue"></i> 我们的蜜月足迹
+                </h3>
+                
+                <!-- World Map Visualization via SVG -->
+                <div class="relative aspect-[2/1] w-full bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden mb-10 shadow-inner">
+                    <svg viewBox="0 0 1000 500" class="w-full h-full fill-slate-200 stroke-white stroke-1">
+                        <rect x="0" y="0" width="1000" height="500" fill="#F8FAFC"/>
+                        <!-- North America -->
+                        <path d="M120 100 Q150 70 250 80 T300 150 T280 250 Q230 230 180 300 Z" fill="#E2E8F0" />
+                        <!-- South America -->
+                        <path d="M250 300 Q300 320 330 380 T300 480 Q250 450 240 380 Z" fill="#E2E8F0" />
+                        <!-- Eurasia / Africa -->
+                        <path d="M450 80 Q600 60 850 80 T900 200 T850 350 Q750 380 650 320 T500 250 Q420 150 450 80 Z" fill="#E2E8F0" />
+                        <path d="M450 250 Q550 250 600 320 T550 450 Q480 430 450 350 Z" fill="#E2E8F0" stroke="#FFF" />
+                        <!-- Australia -->
+                        <path d="M780 380 Q850 380 880 420 T800 470 Z" fill="#E2E8F0" />
+                        <!-- Japan Island -->
+                        <path d="M840 150 Q850 140 860 170" fill="none" stroke="#CBD5E1" stroke-width="6" stroke-linecap="round"/>
+                        <!-- New Zealand -->
+                        <path d="M870 450 Q880 470 890 480" fill="none" stroke="#CBD5E1" stroke-width="4" stroke-linecap="round"/>
+                        <!-- Iceland -->
+                        <circle cx="480" cy="80" r="10" fill="#CBD5E1" />
+
+                        <!-- INTERACTIVE TARGET PIN LOCATIONS -->
+                        <!-- Japan -->
+                        <g id="pin-japan" class="cursor-pointer transition-transform duration-300 hover:scale-125 origin-[850px_165px]">
+                            <circle cx="850" cy="165" r="12" class="fill-roseGold/30 stroke-roseGold stroke-2 animate-ping" />
+                            <circle cx="850" cy="165" r="6" class="fill-roseGold stroke-white stroke-2" />
+                        </g>
+                        <!-- Singapore -->
+                        <g id="pin-singapore" class="cursor-pointer transition-transform duration-300 hover:scale-125 origin-[760px_275px]">
+                            <circle cx="760" cy="275" r="12" class="fill-roseGold/30 stroke-roseGold stroke-2 animate-ping" />
+                            <circle cx="760" cy="275" r="6" class="fill-roseGold stroke-white stroke-2" />
+                        </g>
+                        <!-- UK -->
+                        <g id="pin-uk" class="cursor-pointer transition-transform duration-300 hover:scale-125 origin-[490px_120px]">
+                            <circle cx="490" cy="120" r="12" class="fill-roseGold/30 stroke-roseGold stroke-2 animate-ping" />
+                            <circle cx="490" cy="120" r="6" class="fill-roseGold stroke-white stroke-2" />
+                        </g>
+                        <!-- France -->
+                        <g id="pin-france" class="cursor-pointer transition-transform duration-300 hover:scale-125 origin-[510px_145px]">
+                            <circle cx="510" cy="145" r="12" class="fill-roseGold/30 stroke-roseGold stroke-2 animate-ping" />
+                            <circle cx="510" cy="145" r="6" class="fill-roseGold stroke-white stroke-2" />
+                        </g>
+                        <!-- Italy -->
+                        <g id="pin-italy" class="cursor-pointer transition-transform duration-300 hover:scale-125 origin-[535px_160px]">
+                            <circle cx="535" cy="160" r="12" class="fill-roseGold/30 stroke-roseGold stroke-2 animate-ping" />
+                            <circle cx="535" cy="160" r="6" class="fill-roseGold stroke-white stroke-2" />
+                        </g>
+                        <!-- Australia -->
+                        <g id="pin-australia" class="cursor-pointer transition-transform duration-300 hover:scale-125 origin-[830px_430px]">
+                            <circle cx="830" cy="430" r="12" class="fill-roseGold/30 stroke-roseGold stroke-2 animate-ping" />
+                            <circle cx="830" cy="430" r="6" class="fill-roseGold stroke-white stroke-2" />
+                        </g>
+                        <!-- New Zealand -->
+                        <g id="pin-newzealand" class="cursor-pointer transition-transform duration-300 hover:scale-125 origin-[885px_465px]">
+                            <circle cx="885" cy="465" r="12" class="fill-roseGold/30 stroke-roseGold stroke-2 animate-ping" />
+                            <circle cx="885" cy="465" r="6" class="fill-roseGold stroke-white stroke-2" />
+                        </g>
+                        <!-- Iceland -->
+                        <g id="pin-iceland" class="cursor-pointer transition-transform duration-300 hover:scale-125 origin-[480px_80px]">
+                            <circle cx="480" cy="80" r="12" class="fill-roseGold/30 stroke-roseGold stroke-2 animate-ping" />
+                            <circle cx="480" cy="80" r="6" class="fill-roseGold stroke-white stroke-2" />
+                        </g>
+                    </svg>
+
+                    <div class="absolute bottom-4 left-4 bg-white/80 backdrop-blur border border-slate-100 rounded-lg p-2 text-xs text-slate-500 shadow-sm pointer-events-none">
+                        💡 鼠标悬停下方的蜜月卡片，即可定位地图！
+                    </div>
+                </div>
+
+                <!-- 8 Country Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="country-grid">
+                    <!-- Japan -->
+                    <div class="country-card bg-slate-50 hover:bg-rose-50/50 p-5 rounded-2xl border border-slate-100 hover:border-roseGold/30 transition-all duration-300 cursor-pointer hover:shadow-lg" data-target="pin-japan" data-country="日本" data-details="计划带你去京都岚山漫步在落樱繁华之下，吃最地道的手作抹茶，去北海道极寒温泉赏雪。">
+                        <div class="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4"><i data-lucide="flower" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-slate-800">日本 🌸</h4>
+                        <p class="text-xs text-slate-500 mt-2">京都粉樱漫天，北海道浪漫私汤</p>
+                    </div>
+                    <!-- Singapore -->
+                    <div class="country-card bg-slate-50 hover:bg-rose-50/50 p-5 rounded-2xl border border-slate-100 hover:border-roseGold/30 transition-all duration-300 cursor-pointer hover:shadow-lg" data-target="pin-singapore" data-country="新加坡" data-details="在绿意盎然的滨海湾花园夜游赏灯，去圣淘沙看晚霞染红整片天空。">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-4"><i data-lucide="palmtree" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-slate-800">新加坡 🇸🇬</h4>
+                        <p class="text-xs text-slate-500 mt-2">花园城市漫步，圣淘沙唯美落日</p>
+                    </div>
+                    <!-- United Kingdom -->
+                    <div class="country-card bg-slate-50 hover:bg-rose-50/50 p-5 rounded-2xl border border-slate-100 hover:border-roseGold/30 transition-all duration-300 cursor-pointer hover:shadow-lg" data-target="pin-uk" data-country="英国" data-details="漫步古老的大笨钟下，坐在伦敦眼包厢俯瞰繁华，并在康河的柔波里泛舟撑篙。">
+                        <div class="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mb-4"><i data-lucide="hourglass" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-slate-800">英国 🇬🇧</h4>
+                        <p class="text-xs text-slate-500 mt-2">英伦街头牵手，康桥撑篙荡漾</p>
+                    </div>
+                    <!-- France -->
+                    <div class="country-card bg-slate-50 hover:bg-rose-50/50 p-5 rounded-2xl border border-slate-100 hover:border-roseGold/30 transition-all duration-300 cursor-pointer hover:shadow-lg" data-target="pin-france" data-country="法国" data-details="在巴黎埃菲尔铁塔的浪漫暖光下深情相拥，夏日驱车去薰衣草海洋深呼吸。">
+                        <div class="w-10 h-10 bg-purple-50 text-purple-500 rounded-full flex items-center justify-center mb-4"><i data-lucide="tower-control" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-slate-800">法国 🇫🇷</h4>
+                        <p class="text-xs text-slate-500 mt-2">巴黎铁塔相拥，普罗旺斯薰衣草</p>
+                    </div>
+                    <!-- Italy -->
+                    <div class="country-card bg-slate-50 hover:bg-rose-50/50 p-5 rounded-2xl border border-slate-100 hover:border-roseGold/30 transition-all duration-300 cursor-pointer hover:shadow-lg" data-target="pin-italy" data-country="意大利" data-details="在罗马特莱维许愿池郑重投下两枚硬币，乘着威尼斯贡多拉摇曳于水城。">
+                        <div class="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-4"><i data-lucide="compass" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-slate-800">意大利 🇮🇹</h4>
+                        <p class="text-xs text-slate-500 mt-2">罗马古池许愿，威尼斯贡多拉</p>
+                    </div>
+                    <!-- Australia -->
+                    <div class="country-card bg-slate-50 hover:bg-rose-50/50 p-5 rounded-2xl border border-slate-100 hover:border-roseGold/30 transition-all duration-300 cursor-pointer hover:shadow-lg" data-target="pin-australia" data-country="澳大利亚" data-details="去墨尔本海滩吹吹风，并在缤纷多彩的大堡礁海底潜水，去抱抱呆萌的考拉。">
+                        <div class="w-10 h-10 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mb-4"><i data-lucide="waves" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-slate-800">澳大利亚 🇦🇺</h4>
+                        <p class="text-xs text-slate-500 mt-2">悉尼歌剧院，蔚蓝大堡礁潜水</p>
+                    </div>
+                    <!-- New Zealand -->
+                    <div class="country-card bg-slate-50 hover:bg-rose-50/50 p-5 rounded-2xl border border-slate-100 hover:border-roseGold/30 transition-all duration-300 cursor-pointer hover:shadow-lg" data-target="pin-newzealand" data-country="新西兰" data-details="在世界上最纯净的特卡波湖畔仰望璀璨银河，在皇后镇体验惊险刺激的纵身一跳。">
+                        <div class="w-10 h-10 bg-teal-50 text-teal-500 rounded-full flex items-center justify-center mb-4"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-slate-800">新西兰 🇳🇿</h4>
+                        <p class="text-xs text-slate-500 mt-2">特卡波湖看星空，皇后镇极限刺激</p>
+                    </div>
+                    <!-- Iceland -->
+                    <div class="country-card bg-slate-50 hover:bg-rose-50/50 p-5 rounded-2xl border border-slate-100 hover:border-roseGold/30 transition-all duration-300 cursor-pointer hover:shadow-lg" data-target="pin-iceland" data-country="冰岛" data-details="披星戴月守候那一抹梦幻的北极绿光，在天然蓝湖泡去疲惫，高呼一万遍我爱你。">
+                        <div class="w-10 h-10 bg-cyan-50 text-cyan-500 rounded-full flex items-center justify-center mb-4"><i data-lucide="snowflake" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-slate-800">冰岛 🇮🇸</h4>
+                        <p class="text-xs text-slate-500 mt-2">梦幻极光，蓝湖温泉与世界尽头</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADD NEW HONEYMOON DESTINATION WISH -->
+            <div class="max-w-xl mx-auto bg-white border border-slate-100 shadow-lg rounded-2xl p-6 text-center">
+                <h4 class="font-bold text-slate-800 mb-2 flex items-center justify-center gap-2"><i data-lucide="heart" class="w-4 h-4 text-medicalRed fill-current"></i> 添加你的专属蜜月地点</h4>
+                <p class="text-xs text-slate-400 mb-4">亲爱的小汽车，如果有你更向往的秘密境地，告诉我，我们写进明天的行程里！</p>
+                <div class="flex gap-2">
+                    <input type="text" id="wish-input" placeholder="输入你想去的国家/城市（如：马尔代夫）" class="flex-1 px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-roseGold text-sm">
+                    <button id="add-wish-btn" class="bg-roseGold hover:bg-roseGoldDark text-white px-5 py-2 rounded-xl text-sm font-semibold transition-all">添加愿望</button>
+                </div>
+                <!-- Wishes list container -->
+                <div id="wishes-list" class="flex flex-wrap gap-2 mt-4 justify-center"></div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 9. SECTION 7: PROPOSAL MAIN -->
+    <section id="proposal" class="py-24 bg-gradient-to-br from-rose-50 via-white to-orange-50 relative">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-roseGold/10 rounded-full border border-roseGold/20 mb-8 float-slow">
+                <!-- Glowing Rotating Ring -->
+                <svg viewBox="0 0 100 100" class="w-16 h-16 spin-slow">
+                    <circle cx="50" cy="50" r="30" fill="none" stroke="#E6B89C" stroke-width="4" stroke-dasharray="8 4"/>
+                    <polygon points="50,10 60,20 50,30 40,20" fill="#FFF" stroke="#4A90E2" stroke-width="2"/>
+                </svg>
+            </div>
+
+            <span class="text-xs tracking-widest font-bold uppercase text-medicalRed block mb-2">FINAL CHOICE · 终极誓言</span>
+            <h2 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-roseGoldDark to-roseGold tracking-wider mb-10 font-romantic">小汽车，嫁给我吧</h2>
+            
+            <!-- Proposal Letter Box -->
+            <div class="bg-white rounded-3xl shadow-2xl border-2 border-roseGold/30 p-8 md:p-12 text-left max-w-2xl mx-auto relative overflow-hidden">
+                <!-- Golden edge corner borders -->
+                <div class="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-roseGold m-4"></div>
+                <div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-roseGold m-4"></div>
+                <div class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-roseGold m-4"></div>
+                <div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-roseGold m-4"></div>
+
+                <div class="prose prose-slate max-w-none text-slate-700 leading-relaxed space-y-6">
+                    <p class="font-bold text-lg md:text-xl text-slate-800">亲爱的小汽车：</p>
+                    
+                    <div id="typewriter-content" class="typing-cursor font-romantic text-base md:text-lg tracking-wide whitespace-pre-line leading-loose">
+                        <!-- Typwriter text populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proposal Action Buttons -->
+            <div class="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
+                <button id="btn-yes" class="px-10 py-5 bg-gradient-to-r from-roseGold to-roseGoldDark hover:from-roseGoldDark hover:to-roseGold text-white font-bold text-lg rounded-full shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2">
+                    <i data-lucide="heart" class="w-6 h-6 fill-current"></i> 我愿意！
+                </button>
+                <button id="btn-no" class="px-8 py-4 bg-white text-slate-400 hover:text-slate-600 font-bold text-sm rounded-full border border-slate-200 hover:border-slate-300 shadow-sm transition-all duration-300">
+                    让我再考虑一下...
+                </button>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 10. RESULT SCREENS (Initially Hidden) -->
+    <!-- Screen: YES -->
+    <div id="result-yes" class="fixed inset-0 bg-white/95 backdrop-blur-md z-50 flex flex-col items-center justify-center text-center p-6 hidden">
+        <div class="max-w-xl">
+            <div class="text-6xl md:text-8xl mb-6">🎉👩‍❤️‍👨🎆</div>
+            <h1 class="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-roseGold to-medicalRed mb-4 font-romantic">太好了！我愿意用一辈子来证明我对你的爱！</h1>
+            <p class="text-slate-600 mb-8 leading-relaxed">
+                现在，打电话给我吧，我想立刻听到你那温柔的声音。
+            </p>
+            
+            <!-- Phone Call Block (Replace default number with yours) -->
+            <a href="tel:13888888888" id="phone-display" class="inline-flex items-center gap-3 bg-roseGold text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-roseGoldDark transition-all mb-12">
+                <i data-lucide="phone-call" class="w-5 h-5"></i> 拨通张家麒的电话 (拨号前请在代码中替换此号码)
+            </a>
+
+            <!-- Countdown Block -->
+            <div class="p-6 bg-rose-50 border border-rose-100 rounded-2xl">
+                <p class="text-xs text-rose-500 uppercase font-bold tracking-widest mb-2">我们的婚礼倒计时</p>
+                <div class="flex gap-4 justify-center items-center">
+                    <div>
+                        <span id="days-count" class="text-3xl font-bold text-slate-800">99</span>
+                        <span class="text-xs text-slate-500">天</span>
+                    </div>
+                    <span class="text-slate-300">:</span>
+                    <div>
+                        <span id="hours-count" class="text-3xl font-bold text-slate-800">12</span>
+                        <span class="text-xs text-slate-500">时</span>
+                    </div>
+                    <span class="text-slate-300">:</span>
+                    <div>
+                        <span id="mins-count" class="text-3xl font-bold text-slate-800">30</span>
+                        <span class="text-xs text-slate-500">分</span>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-close-yes" class="mt-8 text-xs text-slate-400 hover:text-slate-600 underline">返回求婚主页</button>
+        </div>
+    </div>
+
+    <!-- Screen: NO -->
+    <div id="result-no" class="fixed inset-0 bg-white/95 backdrop-blur-md z-50 flex flex-col items-center justify-center text-center p-6 hidden">
+        <div class="max-w-xl">
+            <div class="text-6xl md:text-8xl mb-6">🧸✨😊</div>
+            <h1 class="text-3xl font-bold text-slate-800 mb-4">没关系，我会等你，多久都愿意。</h1>
+            <p class="text-slate-600 mb-8 leading-relaxed">
+                无论你做什么 decision，我都会一直深深爱着你。你可以随时告诉我你的答案。
+            </p>
+            <button id="btn-close-no" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-full transition-all">
+                返回再看一眼信件
+            </button>
+        </div>
+    </div>
+
+
+    <!-- 11. WORLD MAP DETAILS MODAL -->
+    <div id="map-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div id="modal-content" class="text-center">
+                <!-- Dynamic Content goes here -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 12. FOOTER Surprises -->
+    <footer class="py-12 bg-slate-900 text-white relative">
+        <div class="max-w-6xl mx-auto px-6 text-center space-y-6">
+            <div class="text-xs text-slate-500 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                <span>© 2026 Designed and Built with ❤️ by 张家麒</span>
+                <span>祝愿我们的未来充满无限的爱与治愈</span>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- JAVASCRIPT LOGIC AND INTERACTIVITY -->
+    <script>
+        // Init Lucide Icons
+        lucide.createIcons();
+
+        // 1. Loading Screen Progression
+        window.addEventListener('DOMContentLoaded', () => {
+            const loadingScreen = document.getElementById('loading-screen');
+            const progressBar = document.getElementById('progress-bar');
+            const loadingText = document.getElementById('loading-text');
+            const airdropBox = document.getElementById('airdrop-box');
+            const loadingRing = document.getElementById('loading-ring');
+            const glowLight = document.getElementById('glow-light');
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 15) + 5;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    // Transition
+                    setTimeout(() => {
+                        glowLight.classList.remove('opacity-0', 'scale-50');
+                        glowLight.classList.add('opacity-80', 'scale-100');
+                        loadingText.textContent = "装填无限能量完毕！";
+                        
+                        setTimeout(() => {
+                            airdropBox.classList.add('hidden');
+                            loadingRing.classList.remove('hidden');
+                            setTimeout(() => {
+                                loadingRing.classList.remove('scale-50', 'opacity-0');
+                                loadingRing.classList.add('scale-100', 'opacity-100');
+                                loadingText.textContent = "以爱之名，即将启航...";
+                                
+                                setTimeout(() => {
+                                    loadingScreen.classList.add('opacity-0');
+                                    setTimeout(() => {
+                                        loadingScreen.classList.add('hidden');
+                                        attemptMusicPlay();
+                                    }, 1000);
+                                }, 1500);
+                            }, 50);
+                        }, 800);
+                    }, 500);
+                }
+                progressBar.style.width = `${progress}%`;
+            }, 120);
+        });
+
+        // 2. Global Audio Handler with Autoplay Policy Care
+        const bgMusic = document.getElementById('bg-music');
+        const musicToggleBtn = document.getElementById('music-toggle');
+        const musicIcon = document.getElementById('music-icon');
+        const disk = document.getElementById('disk');
+
+        let isPlaying = false;
+
+        function attemptMusicPlay() {
+            bgMusic.play()
+                .then(() => {
+                    setPlayingState(true);
+                })
+                .catch(() => {
+                    setPlayingState(false);
+                    // Add global listener to start on first interaction
+                    document.body.addEventListener('click', firstInteractionPlay, { once: true });
+                });
+        }
+
+        function firstInteractionPlay() {
+            if (!isPlaying) {
+                bgMusic.play().then(() => {
+                    setPlayingState(true);
+                });
+            }
+        }
+
+        function setPlayingState(playing) {
+            isPlaying = playing;
+            if (playing) {
+                musicIcon.setAttribute('data-lucide', 'pause');
+                disk.classList.add('spin-slow');
+                disk.style.animationPlayState = 'running';
+            } else {
+                musicIcon.setAttribute('data-lucide', 'music');
+                disk.style.animationPlayState = 'paused';
+            }
+            lucide.createIcons();
+        }
+
+        musicToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isPlaying) {
+                bgMusic.pause();
+                setPlayingState(false);
+            } else {
+                bgMusic.play().then(() => {
+                    setPlayingState(true);
+                });
+            }
+        });
+
+
+        // 3. Falling Petals & Hearts Particle System (Canvas)
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        const maxParticles = 30;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = -20;
+                this.size = Math.random() * 10 + 5;
+                this.speedY = Math.random() * 1 + 0.5;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = Math.random() * 0.02 - 0.01;
+                this.type = Math.floor(Math.random() * 3);
+                this.opacity = Math.random() * 0.5 + 0.3;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.rotationSpeed;
+
+                if (this.y > canvas.height + 20 || this.x < -20 || this.x > canvas.width + 20) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+
+                if (this.type === 0) {
+                    ctx.fillStyle = '#E74C3C';
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.bezierCurveTo(-this.size/2, -this.size/2, -this.size, 0, 0, this.size);
+                    ctx.bezierCurveTo(this.size, 0, this.size/2, -this.size/2, 0, 0);
+                    ctx.fill();
+                } else if (this.type === 1) {
+                    ctx.fillStyle = '#E6B89C';
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, this.size * 0.8, this.size * 0.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = '#F1C40F';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.size * 0.2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < maxParticles; i++) {
+            particles.push(new Particle());
+            particles[i].y = Math.random() * canvas.height;
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+
+        // 4. Hero Section Interactive Follow Eye Movement
+        const heroSection = document.getElementById('hero');
+        const parallaxBg = document.getElementById('parallax-bg');
+
+        heroSection.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 40;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 40;
+            parallaxBg.style.transform = `translate(${xAxis}px, ${yAxis}px)`;
+        });
+
+
+        // 5. Back to top button visibility
+        const bttBtn = document.getElementById('btn-back-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                bttBtn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-10');
+                bttBtn.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+            } else {
+                bttBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-10');
+                bttBtn.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
+            }
+        });
+
+
+        // 6. Interactive Honeymoon Map & Cards
+        const countryCards = document.querySelectorAll('.country-card');
+        const mapModal = document.getElementById('map-modal');
+        const modalContent = document.getElementById('modal-content');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+
+        countryCards.forEach(card => {
+            const targetId = card.getAttribute('data-target');
+            const pin = document.getElementById(targetId);
+
+            card.addEventListener('mouseenter', () => {
+                if (pin) {
+                    pin.classList.add('scale-150');
+                    pin.querySelector('circle').classList.remove('fill-roseGold/30');
+                    pin.querySelector('circle').classList.add('fill-medicalRed');
+                }
+            });
+
+            card.addEventListener('mouseleave', () => {
+                if (pin) {
+                    pin.classList.remove('scale-150');
+                    pin.querySelector('circle').classList.add('fill-roseGold/30');
+                    pin.querySelector('circle').classList.remove('fill-medicalRed');
+                }
+            });
+
+            card.addEventListener('click', () => {
+                const countryName = card.getAttribute('data-country');
+                const details = card.getAttribute('data-details');
+                
+                modalContent.innerHTML = `
+                    <div class="text-4xl mb-4 text-center">✈️</div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2 font-romantic">${countryName}蜜月计划</h3>
+                    <div class="w-10 h-0.5 bg-roseGold mx-auto mb-4"></div>
+                    <p class="text-slate-600 leading-relaxed text-sm">${details}</p>
+                    <button onclick="closeModal()" class="mt-6 px-6 py-2 bg-roseGold text-white rounded-full font-bold text-xs hover:bg-roseGoldDark transition-all">闭眼憧憬</button>
+                `;
+                openModal();
+            });
+        });
+
+        function openModal() {
+            mapModal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeModal() {
+            mapModal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        closeModalBtn.addEventListener('click', closeModal);
+        mapModal.addEventListener('click', (e) => {
+            if (e.target === mapModal) closeModal();
+        });
+
+
+        // 7. Add Custom Honeymoon Wishes Input
+        const wishInput = document.getElementById('wish-input');
+        const addWishBtn = document.getElementById('add-wish-btn');
+        const wishesList = document.getElementById('wishes-list');
+
+        addWishBtn.addEventListener('click', () => {
+            const wishText = wishInput.value.trim();
+            if (wishText) {
+                const wishElement = document.createElement('span');
+                wishElement.className = 'px-3 py-1 bg-rose-50 text-roseGold font-semibold border border-rose-100 rounded-full text-xs animate-bounce shadow-sm flex items-center gap-1';
+                wishElement.innerHTML = `🌟 ${wishText} <button class="text-red-400 hover:text-red-600 font-bold ml-1" onclick="this.parentElement.remove()">×</button>`;
+                wishesList.appendChild(wishElement);
+                wishInput.value = '';
+            }
+        });
+
+
+        // 8. Typewriter Effect for Romantic Proposal Letter
+        const proposalBox = document.getElementById('proposal');
+        const typewriterContent = document.getElementById('typewriter-content');
+
+        const loveLetterText = `从海岛相遇的那一刻起，我的心就被你彻底虏获了。我喜欢和你一起并肩作战的感觉，喜欢听你分享生活琐事，也深深眷恋着你温暖温柔的笑容。
+
+你是白衣天使，每天用专业和爱心照顾和疗愈着病患。我想在未来的岁月里，担任你唯一的、现实世界的专属医疗兵，照顾你一辈子。
+
+你比我年长，比我懂得更多。但我会拼尽全力快快长大，努力成为能为你遮风避雨、让你肆意撒娇的丈夫。
+
+这首《爱的双重魔力》，我反反复复地听，每一句歌词都是对你的表白。我不想只在屏幕前默默喜欢你，我想给你一个实实在在的、温馨和美的家。带你去看遍这繁华世界所有的美景，从冰岛的璀璨极光，到新西兰纯澈无瑕的灿烂星空。
+
+小汽车，嫁给我好吗？
+
+你的专属守护医疗兵：张家麒 敬上`;
+
+        let letterIndex = 0;
+        let isTypingStarted = false;
+
+        function typeLetter() {
+            if (letterIndex < loveLetterText.length) {
+                typewriterContent.textContent += loveLetterText.charAt(letterIndex);
+                letterIndex++;
+                setTimeout(typeLetter, 50);
+            } else {
+                typewriterContent.classList.remove('typing-cursor');
+            }
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!isTypingStarted) {
+                const rect = proposalBox.getBoundingClientRect();
+                const viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+                if (!(rect.bottom < 0 || rect.top - viewHeight >= 0)) {
+                    isTypingStarted = true;
+                    typeLetter();
+                }
+            }
+        });
+
+
+        // 9. Final Decision Button Handlers (YES / NO)
+        const btnYes = document.getElementById('btn-yes');
+        const btnNo = document.getElementById('btn-no');
+        const resultYes = document.getElementById('result-yes');
+        const resultNo = document.getElementById('result-no');
+        const btnCloseYes = document.getElementById('btn-close-yes');
+        const btnCloseNo = document.getElementById('btn-close-no');
+
+        btnYes.addEventListener('click', () => {
+            resultYes.classList.remove('hidden');
+            startWeddingCountdown();
+        });
+
+        btnNo.addEventListener('click', () => {
+            resultNo.classList.remove('hidden');
+        });
+
+        btnCloseYes.addEventListener('click', () => {
+            resultYes.classList.add('hidden');
+        });
+
+        btnCloseNo.addEventListener('click', () => {
+            resultNo.classList.add('hidden');
+        });
+
+
+        // 10. Wedding Day Countdown Timer
+        const weddingDate = new Date();
+        weddingDate.setDate(weddingDate.getDate() + 99);
+
+        function startWeddingCountdown() {
+            function updateCountdown() {
+                const now = new Date();
+                const diff = weddingDate - now;
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+                document.getElementById('days-count').textContent = days;
+                document.getElementById('hours-count').textContent = hours;
+                document.getElementById('mins-count').textContent = minutes;
+            }
+            updateCountdown();
+            setInterval(updateCountdown, 60000);
+        }
+
+    </script>
+</body>
+</html>
+
+```
